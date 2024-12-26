@@ -15,6 +15,7 @@ const client = createClient({
 app.use(bodyParser.json());
 app.use(cors());
 
+// Login endpoint
 app.post('/login', async (req, res) => {
     const { rollNumber, password } = req.body;
     console.log('Received roll number:', rollNumber);
@@ -49,9 +50,9 @@ app.post('/login', async (req, res) => {
     }
 });
 
+// Fetch detailed student profile
 app.get('/student/:rollNumber', async (req, res) => {
-    const { rollNumber } = req.params;
-    console.log('Received roll number:', rollNumber);
+    const rollNumber = req.params.rollNumber;
 
     try {
         const query = `SELECT * FROM "Student-info" WHERE "rollNumber" = ?`;
@@ -69,13 +70,29 @@ app.get('/student/:rollNumber', async (req, res) => {
         }
 
         const student = result.rows[0];
-        res.status(200).json(student);
+
+        // Return the detailed student profile
+        res.status(200).json({
+            rollNumber: student.rollNumber,
+            firstName: student.firstName,
+            lastName: student.lastName,
+            gender: student.gender,
+            dob: student.dob,
+            address: student.address,
+            parentName: student.parentName,
+            parentEmail: student.parentEmail,
+            parentContact: student.parentContact,
+            cast: student.cast,
+            region: student.region,
+            yearOfAdmission: student.yearOfAdmission,
+            className: student.className
+        });
+
     } catch (error) {
         console.error('Error fetching student details:', error.message);
         res.status(500).send({ error: 'Internal Server Error' });
     }
 });
-
 
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
