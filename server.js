@@ -49,6 +49,34 @@ app.post('/login', async (req, res) => {
     }
 });
 
+app.get('/student/:rollNumber', async (req, res) => {
+    const { rollNumber } = req.params;
+    console.log('Received roll number:', rollNumber);
+
+    try {
+        const query = `SELECT * FROM "Student-info" WHERE "rollNumber" = ?`;
+        const params = [rollNumber];
+
+        console.log('Executing query:', query);
+        console.log('With parameters:', params);
+
+        const result = await client.execute(query, params);
+
+        console.log('Query result:', result);
+
+        if (result.rows.length === 0) {
+            return res.status(404).send({ error: 'Student not found' });
+        }
+
+        const student = result.rows[0];
+        res.status(200).json(student);
+    } catch (error) {
+        console.error('Error fetching student details:', error.message);
+        res.status(500).send({ error: 'Internal Server Error' });
+    }
+});
+
+
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
